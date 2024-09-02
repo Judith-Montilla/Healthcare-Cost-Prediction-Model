@@ -42,63 +42,75 @@ df['smoker'] = df['smoker'].apply(lambda x: 1 if x == 'yes' else 0)
 df.drop(columns=['region'], inplace=True)
 
 # Separate features and target variable
-X = df.drop(columns=['charges'])  # Features: 'age', 'sex', 'bmi', 'children', 'smoker'
+X = df.drop(columns=['charges'])  # Features
 y = df['charges']  # Target variable
 
-# Split the data into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
-
-# Standardize the features
+# 3. Feature Scaling
+# Standardize the features to have zero mean and unit variance
 scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+X_scaled = scaler.fit_transform(X)
 
-# 3. Model Development
-# Initialize and train the Linear Regression model
+# 4. Train-Test Split
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+
+# 5. Model Development
+# Initialize the Linear Regression model
 model = LinearRegression()
-model.fit(X_train_scaled, y_train)
 
-# Predict on the test set
-y_pred = model.predict(X_test_scaled)
+# Train the model
+model.fit(X_train, y_train)
 
-# Model Evaluation
-# Calculate Mean Squared Error (MSE) and R-Squared (R²) for test data
-mse = mean_squared_error(y_test, y_pred)
-r2 = r2_score(y_test, y_pred)
+# 6. Model Evaluation
+# Predict on the training set and testing set
+y_train_pred = model.predict(X_train)
+y_test_pred = model.predict(X_test)
 
-print(f'Test Mean Squared Error (MSE): {mse:,.2f}')
-print(f'Test R-Squared (R²): {r2:.2f}')
+# Calculate performance metrics
+train_mse = mean_squared_error(y_train, y_train_pred)
+train_r2 = r2_score(y_train, y_train_pred)
+test_mse = mean_squared_error(y_test, y_test_pred)
+test_r2 = r2_score(y_test, y_test_pred)
 
-# Feature Importance (Coefficients of the Linear Regression Model)
-coefficients = pd.DataFrame(model.coef_, X.columns, columns=['Coefficient'])
-print(coefficients)
+print(f'Training Mean Squared Error (MSE): {train_mse:.2f}')
+print(f'Training R-Squared (R²): {train_r2:.2f}')
+print(f'Test Mean Squared Error (MSE): {test_mse:.2f}')
+print(f'Test R-Squared (R²): {test_r2:.2f}')
 
-# Cross-Validation Results
+# 7. Feature Importance
+# Print the coefficients of the features
+feature_names = X.columns
+coefficients = model.coef_
+for feature, coef in zip(feature_names, coefficients):
+    print(f'Feature: {feature}, Coefficient: {coef:.2f}')
+
+# 8. Cross-Validation
 # Perform 10-fold cross-validation
 cv = KFold(n_splits=10, shuffle=True, random_state=42)
-cv_scores = cross_val_score(model, X, y, cv=cv, scoring='r2')
+cv_scores = cross_val_score(model, X_scaled, y, cv=cv, scoring='r2')
 
 print(f'Average Cross-Validation R-Squared (R²): {cv_scores.mean():.2f}')
 
-# Assumption Checking
+# 9. Assumption Checking
 # Residual Analysis
-residuals = y_test - y_pred
-plt.figure(figsize=(10, 6))
-plt.scatter(y_pred, residuals, alpha=0.5)
-plt.title('Residuals vs Predicted Values')
+residuals = y_test - y_test_pred
+plt.figure(figsize=(12, 6))
+sns.scatterplot(x=y_test_pred, y=residuals)
 plt.xlabel('Predicted Values')
 plt.ylabel('Residuals')
-plt.axhline(0, color='red', linestyle='--')
+plt.title('Residuals vs Predicted Values')
 plt.show()
 
-# Normality of Residuals
-fig = plt.figure(figsize=(10, 6))
+# Q-Q Plot for Normality of Residuals
 sm.qqplot(residuals, line ='45')
 plt.title('Q-Q Plot of Residuals')
 plt.show()
 
-# 4. Conclusion
-# The linear regression model demonstrated a test R² of 0.78, indicating that approximately 78% of the variance in healthcare costs is explained by the model.
-# The Mean Squared Error (MSE) was 33,979,257.05, reflecting the average squared difference between predicted and actual charges.
-# Key predictors identified include smoking status, age, and BMI, which are crucial for understanding and optimizing healthcare costs.
-# Future work could involve exploring regularization techniques (Ridge and Lasso) to handle potential multicollinearity and improve model performance.
+# Conclusion:
+# The linear regression model demonstrated good performance with an R² value of 0.78 on the test set, indicating that the model explains a significant proportion of the variance in healthcare costs. The model's ability to identify key predictors such as smoking status, age, and BMI provides valuable insights into healthcare cost drivers. The next steps involve exploring more complex models to potentially improve prediction accuracy and conducting further analysis to understand the impact of each feature in real-world scenarios.
+
+# Future Work Recommendations:
+# - Explore additional features and interactions to enhance model performance.
+# - Test advanced regression techniques or ensemble methods to improve accuracy.
+# - Validate the model on different datasets to ensure robustness and generalizability.
+# - Consider deploying the model in a real-world healthcare setting to assess its impact on cost predictions and resource allocation.
