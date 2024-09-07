@@ -1,10 +1,10 @@
 # Healthcare-Cost-Prediction-Regression-Analysis
 
-This repository features Python code for predicting healthcare costs using linear regression, demonstrating end-to-end data analytics skills. It covers data preprocessing, feature engineering, model development, and performance evaluation, offering practical insights into healthcare cost drivers.
+This repository contains Python code for predicting healthcare costs using regression models, demonstrating end-to-end data analytics skills. It includes data preprocessing, feature engineering, model development, and performance evaluation, offering practical insights into healthcare cost drivers.
 
 ## Objective
 
-Develop a regression model to predict healthcare costs based on patient demographics, health metrics, and lifestyle factors. The focus is on identifying key cost drivers to help healthcare providers and insurers optimize pricing and resource allocation.
+The objective of this project is to develop regression models to predict healthcare costs based on patient demographics, health metrics, and lifestyle factors. The focus is on identifying key cost drivers to help healthcare providers and insurers optimize pricing and resource allocation.
 
 ## Dataset Description
 
@@ -18,45 +18,46 @@ Develop a regression model to predict healthcare costs based on patient demograp
 ## Methodology Overview
 
 - **Data Cleaning and Preprocessing:**
-  - Converted categorical variables ('sex' and 'smoker') to numeric format.
-  - Dropped non-relevant columns and handled missing data.
-  - Scaled numerical features for model training.
+  - Categorical variables, including 'sex' and 'smoker', were converted to numeric format.
+  - Non-relevant columns were dropped, and the data was scaled for model training.
+  - Numerical features were standardized to improve model performance.
 
 - **Exploratory Data Analysis:**
-  - Analyzed distributions and correlations between features and medical charges.
-  - Identified significant predictors of healthcare costs.
+  - Distributions of features were analyzed, along with their correlations to medical charges.
+  - Significant predictors of healthcare costs were identified through this analysis.
 
 - **Modeling:**
-  - Built a linear regression model along with Ridge and Lasso regression.
-  - Evaluated model performance using R² and MSE metrics.
-  - Cross-validation used to ensure robustness.
-
-- **Visualizations:**
-  - **Feature Importance Plot:** Displays the significance of each predictor variable in driving healthcare costs.
-  - **Residual vs. Fitted Values Plot:** Used to assess homoscedasticity and model fit.
-  - **VIF Scores:** Highlight multicollinearity in predictor variables.
+  - Linear Regression, Ridge Regression, and Lasso Regression models were developed.
+  - Model performance was evaluated using R² and MSE metrics.
+  - Cross-validation ensured the robustness and generalizability of the models.
 
 ## Key Findings
 
 - **Model Performance:**
-  - **R² (Training):** 0.74
-  - **R² (Test):** 0.78
-  - **MSE (Training):** 37,369,582.74
-  - **MSE (Test):** 33,979,257.05
+  - **Linear Regression:** R² (Training) = 0.74, R² (Test) = 0.78, MSE (Training) = 37,369,582.74, MSE (Test) = 33,979,257.05
+  - **Ridge Regression:** R² (Training) = 0.74, R² (Test) = 0.78, MSE (Training) = 37,369,679.22, MSE (Test) = 33,985,434.24
+  - **Lasso Regression:** R² (Training) = 0.74, R² (Test) = 0.78, MSE (Training) = 37,369,587.71, MSE (Test) = 33,980,873.97
 
 - **Significant Predictors:** 
-  - Smoking status, age, and BMI are significant cost drivers.
+  - Smoking status, age, and BMI were identified as key cost drivers.
+
+## Visualizations
+
+The following visualizations were generated during the analysis:
+  - **Feature Importance Plot:** Displays the importance of each feature in the regression models.
+  - **Residuals vs. Fitted Values Plot:** Assesses the homoscedasticity and performance of the model.
+  - **Q-Q Plot:** Evaluates the normality of residuals.
 
 ## Business Impact
 
-The model demonstrates that smoking status, age, and BMI are critical factors in determining healthcare costs. By understanding these drivers, healthcare providers can better allocate resources and optimize pricing strategies. Future work could include implementing this model in a real-world setting to validate its effectiveness and exploring additional features to enhance predictions.
-
-## Future Work Recommendations
-
-- Investigate additional features and interactions that could further improve the model's accuracy.
-- Explore advanced regression techniques or machine learning models to compare performance.
-- Implement and test the model in a real-world setting to assess practical impact and accuracy.
+The model shows that smoking status, age, and BMI are critical factors in determining healthcare costs. By understanding these drivers, healthcare providers can better allocate resources and optimize pricing strategies. Implementing targeted interventions such as smoking cessation programs could significantly reduce overall healthcare expenses.
 
 ## Ethical Considerations
 
-When deploying predictive models in healthcare, it’s crucial to ensure that predictions are used responsibly and do not perpetuate biases or inaccuracies. Compliance with **HIPAA** (Health Insurance Portability and Accountability Act) is mandatory to safeguard patient data. Regular updates and monitoring of the model’s performance are essential to maintain accuracy, fairness, and transparency.
+In deploying predictive models in healthcare, it is important to comply with healthcare regulations such as **HIPAA** (Health Insurance Portability and Accountability Act) to ensure patient privacy. Models should be monitored continuously to avoid perpetuating biases or inaccuracies, ensuring fairness and ethical use in decision-making.
+
+## Future Work Recommendations
+
+- Further investigation of additional features and interactions to enhance model accuracy.
+- Exploration of advanced regression techniques or machine learning models to improve performance.
+- Implementation of the model in real-world healthcare settings to assess its practical impact and accuracy.
