@@ -27,9 +27,14 @@ Develop a regression model to predict healthcare costs based on patient demograp
   - Identified significant predictors of healthcare costs.
 
 - **Modeling:**
-  - Built a linear regression model.
+  - Built a linear regression model along with Ridge and Lasso regression.
   - Evaluated model performance using R² and MSE metrics.
   - Cross-validation used to ensure robustness.
+
+- **Visualizations:**
+  - **Feature Importance Plot:** Displays the significance of each predictor variable in driving healthcare costs.
+  - **Residual vs. Fitted Values Plot:** Used to assess homoscedasticity and model fit.
+  - **VIF Scores:** Highlight multicollinearity in predictor variables.
 
 ## Key Findings
 
@@ -54,4 +59,4 @@ The model demonstrates that smoking status, age, and BMI are critical factors in
 
 ## Ethical Considerations
 
-When deploying predictive models in healthcare, it’s crucial to ensure that predictions are used responsibly and do not perpetuate biases or inaccuracies. Regular updates and monitoring of the model’s performance...
+When deploying predictive models in healthcare, it’s crucial to ensure that predictions are used responsibly and do not perpetuate biases or inaccuracies. Compliance with **HIPAA** (Health Insurance Portability and Accountability Act) is mandatory to safeguard patient data. Regular updates and monitoring of the model’s performance are essential to maintain accuracy, fairness, and transparency.
