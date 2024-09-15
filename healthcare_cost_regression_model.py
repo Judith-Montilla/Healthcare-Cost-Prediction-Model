@@ -41,8 +41,9 @@ print(df.info())
 df['sex'] = df['sex'].apply(lambda x: 1 if x == 'male' else 0)
 df['smoker'] = df['smoker'].apply(lambda x: 1 if x == 'yes' else 0)
 
-# Drop 'region' column as it is not needed for this analysis
-df.drop(columns=['region'], inplace=True)
+# Retain the 'region' column as it is a factor influencing healthcare costs
+# Convert 'region' to dummy variables for model inclusion
+df = pd.get_dummies(df, columns=['region'], drop_first=True)
 
 # Separate features and target variable
 X = df.drop(columns=['charges'])  # Features
@@ -133,5 +134,13 @@ plt.show()
 
 # Conclusion:
 # The linear regression model demonstrated strong performance with an R² value of 0.78 and MSE of 33.98 million on the test set.
-# Smoking status, BMI, and age are the most significant factors driving healthcare costs. Ridge and Lasso regression did not provide significant performance improvements.
+# Smoking status, BMI, and age are the most significant factors driving healthcare costs. Including the region as a feature provided further insights into geographic healthcare cost variations.
+# Ridge and Lasso regression did not provide significant performance improvements.
 # The analysis suggests that predictive models can aid healthcare providers in cost optimization and risk-based pricing strategies.
+
+# Future Work:
+# 1. Explore advanced models such as XGBoost or Gradient Boosting to capture potential non-linear relationships and improve prediction accuracy.
+# 2. Include additional features such as comorbidities, family history of diseases, or genetic factors for a more comprehensive healthcare cost prediction.
+# 3. Investigate the implementation of real-time predictive tools to be used at the point of care for dynamic cost forecasting.
+# 4. Implement model interpretability techniques such as SHAP values to understand feature contributions in more detail.
+# 5. Test the model in a real-world healthcare setting to evaluate practical performance and patient outcomes.
