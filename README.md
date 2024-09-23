@@ -1,11 +1,9 @@
 # Healthcare Cost Prediction Using Ridge and Lasso Regression
 
 ## Objective
-
 The primary objective of this project is to develop a regression model to predict healthcare costs using patient demographics, health metrics, and lifestyle factors. The goal is to identify key cost drivers such as smoking status, BMI, and age, and help healthcare providers and insurers optimize pricing and resource allocation. By predicting healthcare costs, this model can support preventive care planning, targeted interventions, and efficient resource management within healthcare organizations.
 
 ## Dataset Description
-
 - **Source:** Kaggle - [Medical Cost Personal Dataset](https://www.kaggle.com/mirichoi0218/insurance)
 - **Features:**
   - **Demographics:** Age, sex, and region (dummy encoded for model training).
@@ -15,13 +13,13 @@ The primary objective of this project is to develop a regression model to predic
 
 ## Methodology Overview
 
-### Data Cleaning and Preprocessing:
+### Data Cleaning and Preprocessing
 - Converted categorical variables ('sex', 'smoker', 'region') to numeric format using one-hot encoding for the region.
 - Scaled numerical features (age, BMI, children) for model training.
 - Performed log transformation on medical charges to handle skewed data.
-- Added interaction terms and polynomial features (e.g., Age^2, BMI^2, Age * BMI) to capture non-linear relationships between variables.
+- Added interaction terms and polynomial features (e.g., Age², BMI², Age * BMI) to capture non-linear relationships between variables.
 
-### Modeling:
+### Modeling
 - Implemented Ridge and Lasso regression models to handle multicollinearity and improve model regularization.
 - Used **GridSearchCV** to optimize hyperparameters for both Ridge and Lasso models.
 - Evaluated model performance using Root Mean Squared Error (RMSE), R², and Adjusted R² scores.
@@ -29,13 +27,13 @@ The primary objective of this project is to develop a regression model to predic
 
 ## Model Performance
 
-| Model              | Test RMSE         | Test R²  | Best Alpha  | Adjusted R² |
-|--------------------|-------------------|----------|-------------|-------------|
-| Ridge Regression    | 0.3489            | 0.8646   | 1.0         | 0.8379      |
-| Lasso Regression    | 0.4616            | 0.7630   | 0.1         | N/A         |
+| Model              | Test RMSE | Test R²  | Best Alpha | Adjusted R² |
+|--------------------|-----------|----------|------------|-------------|
+| Ridge Regression    | 0.3489    | 0.8646   | 1.0        | 0.8379      |
+| Lasso Regression    | 0.4616    | 0.7630   | 0.1        | N/A         |
 
 ### Feature Importance Visualization
-A key aspect of the Ridge regression model is the feature importance plot, which highlights the significance of various patient demographics and lifestyle factors in predicting healthcare costs. 
+A key aspect of the Ridge regression model is the feature importance plot, which highlights the significance of various patient demographics and lifestyle factors in predicting healthcare costs.
 
 - **Age**, **BMI**, and **smoking status** are the most influential factors. Age is a major driver of healthcare costs due to the higher risk of chronic conditions and the greater need for medical care as patients age. Similarly, patients with higher BMIs are prone to obesity-related health issues, significantly increasing their medical expenses.
 - **Smoking status**: This feature is especially important because smokers typically incur higher medical costs due to the elevated risk of chronic diseases such as heart disease, cancer, and respiratory conditions.
@@ -60,5 +58,5 @@ This model can serve as a critical tool for **cross-functional healthcare teams*
 
 ## Ethical Considerations
 
-- **Data Privacy**: The dataset used is publicly available and anonymized, but when applying this model in real-world settings, it’s important to ensure compliance with **HIPAA** regulations to protect patient information. 
+- **Data Privacy**: The dataset used is publicly available and anonymized, but when applying this model in real-world settings, it’s important to ensure compliance with **HIPAA** regulations to protect patient information.
 - **Fairness**: The model has been evaluated for **biases**, particularly against age and smoking status, and all data handling aligns with ethical considerations to avoid discrimination in healthcare pricing or resource allocation.
