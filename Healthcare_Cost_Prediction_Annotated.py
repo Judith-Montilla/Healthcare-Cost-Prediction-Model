@@ -5,18 +5,19 @@
 # The focus is on identifying key cost drivers to help optimize pricing and resource allocation for healthcare providers and insurers.
 
 # Key Points:
-# - End-to-end analysis covering data preprocessing, model development, and evaluation.
-# - Dataset: Kaggle - Medical Cost Personal Dataset.
-# - Techniques: Linear regression, feature engineering, and performance evaluation (R²: 0.78, MSE: ~33.98 million).
-# - Insights: Smoking status, BMI, and age are significant predictors of healthcare costs.
+# - Feature engineering with interaction terms and polynomial features.
+# - Applied log transformation to healthcare costs to manage skewed data.
+# - Implemented Ridge and Lasso regression with hyperparameter tuning using GridSearchCV.
+# - Assessed model performance using RMSE, R², and Adjusted R².
+# - All graphs will be saved as images, including the improved feature importance plot.
 
 # Import necessary libraries
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.model_selection import train_test_split, cross_val_score, KFold
-from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split, GridSearchCV, KFold
+from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 from sklearn.linear_model import LinearRegression, Ridge, Lasso
 from sklearn.metrics import mean_squared_error, r2_score
 import statsmodels.api as sm
@@ -25,7 +26,7 @@ from statsmodels.stats.outliers_influence import variance_inflation_factor
 # 1. Data Loading and Overview
 try:
     # Load the dataset containing patient demographics, lifestyle factors, and healthcare charges
-    file_path = r"C:\Users\JUDIT\Desktop\Data Sets\insurance.csv"
+    file_path = r'C:\Users\JUDIT\Desktop\Data Sets\insurance.csv'
     df = pd.read_csv(file_path)
     print("Data loaded successfully")
 except FileNotFoundError:
@@ -49,98 +50,95 @@ df = pd.get_dummies(df, columns=['region'], drop_first=True)
 X = df.drop(columns=['charges'])  # Features
 y = df['charges']  # Target variable
 
+# Log transformation on target variable to manage skewed data
+y_log = np.log(y)
+
+# 3. Feature Engineering: Adding Interaction Terms and Polynomial Features
+# Create interaction terms and polynomial features (e.g., Age^2, BMI^2, Age * BMI)
+poly = PolynomialFeatures(degree=2, interaction_only=False, include_bias=False)
+X_poly = poly.fit_transform(X)
+
 # Feature Scaling
 scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# 3. Multicollinearity Check using VIF
-# Calculate Variance Inflation Factor (VIF)
-vif_data = pd.DataFrame()
-vif_data["feature"] = X.columns
-vif_data["VIF"] = [variance_inflation_factor(X_scaled, i) for i in range(X_scaled.shape[1])]
-print(vif_data)
+X_scaled = scaler.fit_transform(X_poly)
 
 # 4. Train-Test Split
-X_train, X_test, y_train, y_test = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_log, test_size=0.2, random_state=42)
 
-# 5. Model Development: Linear, Ridge, and Lasso Regression
+# 5. Ridge and Lasso Regression with Hyperparameter Tuning
+ridge = Ridge()
+lasso = Lasso()
 
-# Initialize models
-models = {
-    'Linear Regression': LinearRegression(),
-    'Ridge Regression': Ridge(),
-    'Lasso Regression': Lasso()
-}
+# Define parameter grid for hyperparameter tuning
+param_grid = {'alpha': [0.1, 1.0, 10.0]}
 
-# Train and evaluate models
-results = {}
-for name, model in models.items():
-    # Fit the model
-    model.fit(X_train, y_train)
-    
-    # Predict on the test set
-    y_test_pred = model.predict(X_test)
-    
-    # Calculate performance metrics
-    test_mse = mean_squared_error(y_test, y_test_pred)
-    test_r2 = r2_score(y_test, y_test_pred)
-    
-    results[name] = {'Test MSE': test_mse, 'Test R²': test_r2}
-    
-    print(f"{name} Performance:")
-    print(f"Test Mean Squared Error (MSE): {test_mse:.2f}")
-    print(f"Test R-Squared (R²): {test_r2:.2f}")
-    print('-' * 50)
+# Perform cross-validation with GridSearchCV
+ridge_cv = GridSearchCV(ridge, param_grid, cv=10)
+lasso_cv = GridSearchCV(lasso, param_grid, cv=10)
 
-# 6. Cross-Validation
-kf = KFold(n_splits=10, shuffle=True, random_state=42)
-cv_results = {name: np.mean(cross_val_score(model, X_scaled, y, cv=kf, scoring='r2')) for name, model in models.items()}
-print(cv_results)
+# Fit models
+ridge_cv.fit(X_train, y_train)
+lasso_cv.fit(X_train, y_train)
+
+# Predict on test data
+y_pred_ridge = ridge_cv.predict(X_test)
+y_pred_lasso = lasso_cv.predict(X_test)
+
+# 6. Model Evaluation
+ridge_rmse = np.sqrt(mean_squared_error(y_test, y_pred_ridge))
+lasso_rmse = np.sqrt(mean_squared_error(y_test, y_pred_lasso))
+ridge_r2 = r2_score(y_test, y_pred_ridge)
+lasso_r2 = r2_score(y_test, y_pred_lasso)
+
+# Output the best hyperparameters and RMSE for both models
+ridge_best_alpha = ridge_cv.best_params_['alpha']
+lasso_best_alpha = lasso_cv.best_params_['alpha']
+
+print(f"Ridge RMSE: {ridge_rmse}, Ridge R²: {ridge_r2}, Best Alpha: {ridge_best_alpha}")
+print(f"Lasso RMSE: {lasso_rmse}, Lasso R²: {lasso_r2}, Best Alpha: {lasso_best_alpha}")
 
 # 7. Assumption Checking: Residual Analysis and Homoscedasticity
 
-# Residuals vs. Fitted Values Plot
-model = LinearRegression()
-model.fit(X_train, y_train)
-y_test_pred = model.predict(X_test)
-residuals = y_test - y_test_pred
+# Residuals vs Fitted Values Plot (Ridge)
+ridge_residuals = y_test - y_pred_ridge
 
 plt.figure(figsize=(10, 6))
-sns.scatterplot(x=y_test_pred, y=residuals)
+sns.scatterplot(x=y_pred_ridge, y=ridge_residuals)
 plt.axhline(0, color='red', linestyle='--')
 plt.xlabel('Fitted Values')
 plt.ylabel('Residuals')
-plt.title('Residuals vs. Fitted Values')
-plt.savefig('residuals_vs_fitted_values.png')
+plt.title('Residuals vs Fitted Values (Ridge)')
+plt.savefig('residuals_vs_fitted_ridge.png')  # Save plot as an image
 plt.show()
 
-# Q-Q Plot for Normality of Residuals
-sm.qqplot(residuals, line='45')
-plt.title('Q-Q Plot of Residuals')
-plt.savefig('qq_plot.png')
+# Q-Q Plot for Normality of Residuals (Ridge)
+sm.qqplot(ridge_residuals, line='45')
+plt.title('Q-Q Plot of Residuals (Ridge)')
+plt.savefig('qq_plot_ridge.png')  # Save Q-Q plot as an image
 plt.show()
 
-# 8. Feature Importance Plot for Linear Regression
-coefficients = model.coef_
-features = X.columns
+# 8. Adjusted R² Calculation for Ridge
+n = X_test.shape[0]  # number of observations
+p = X_test.shape[1]  # number of predictors
+ridge_adj_r2 = 1 - (1 - ridge_r2) * (n - 1) / (n - p - 1)
 
-plt.figure(figsize=(10, 6))
+print(f"Adjusted R² (Ridge): {ridge_adj_r2}")
+
+# 9. Improved Feature Importance Plot (Ridge)
+coefficients = ridge_cv.best_estimator_.coef_
+features = poly.get_feature_names_out()
+
+plt.figure(figsize=(12, 8))  # Increased figure size for better visibility
 sns.barplot(x=coefficients, y=features)
 plt.xlabel('Coefficient Value')
 plt.ylabel('Features')
-plt.title('Feature Importance for Linear Regression')
-plt.savefig('feature_importance.png')
+plt.title('Feature Importance for Ridge Regression')
+plt.xticks(rotation=45, ha='right')  # Rotate labels for better readability
+plt.tight_layout()  # Adjust layout to prevent label cutoff
+plt.savefig('feature_importance_ridge_improved.png')  # Save the improved plot
 plt.show()
 
 # Conclusion:
-# The linear regression model demonstrated strong performance with an R² value of 0.78 and MSE of 33.98 million on the test set.
-# Smoking status, BMI, and age are the most significant factors driving healthcare costs. Including the region as a feature provided further insights into geographic healthcare cost variations.
-# Ridge and Lasso regression did not provide significant performance improvements.
-# The analysis suggests that predictive models can aid healthcare providers in cost optimization and risk-based pricing strategies.
-
-# Future Work:
-# 1. Explore advanced models such as XGBoost or Gradient Boosting to capture potential non-linear relationships and improve prediction accuracy.
-# 2. Include additional features such as comorbidities, family history of diseases, or genetic factors for a more comprehensive healthcare cost prediction.
-# 3. Investigate the implementation of real-time predictive tools to be used at the point of care for dynamic cost forecasting.
-# 4. Implement model interpretability techniques such as SHAP values to understand feature contributions in more detail.
-# 5. Test the model in a real-world healthcare setting to evaluate practical performance and patient outcomes.
+# The Ridge regression model performed well with an R² value of 0.8646 and an Adjusted R² of 0.8379. 
+# The most significant predictors were interaction terms and polynomial features between age, BMI, and smoking status.
+# Future improvements could involve using advanced models like XGBoost to capture non-linear relationships further.
